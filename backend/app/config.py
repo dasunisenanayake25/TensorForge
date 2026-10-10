@@ -1,5 +1,6 @@
 import os
-from fastapi import Request
+from fastapi import Request, Security
+from fastapi.security import APIKeyHeader
 
 TEAM_CYLIX_KEY = "tf2_0b0b7dc05ae49ce296bbd0d1fb596980a2b7dba11e4d6e80"
 MODEL_VERSION_TAG = "v1.2" # Change this whenever Member 1 updates the model
@@ -7,7 +8,9 @@ MODEL_VERSION_TAG = "v1.2" # Change this whenever Member 1 updates the model
 class UnauthorizedException(Exception):
     pass
 
-async def verify_api_key(request: Request):
+api_key_schema = APIKeyHeader(name="X-API-Key", auto_error=False)
+
+async def verify_api_key(request: Request, swagger_key: str = Security(api_key_schema)):
     api_key_header = request.headers.get("X-API-Key")
     auth_header = request.headers.get("Authorization")
     
