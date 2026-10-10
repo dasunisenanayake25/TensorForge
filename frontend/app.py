@@ -1,8 +1,8 @@
+import json
 import os
 
-import pandas as pd
-import requests
 import streamlit as st
+import streamlit.components.v1 as components
 
 
 st.set_page_config(
@@ -12,557 +12,222 @@ st.set_page_config(
     initial_sidebar_state="collapsed",
 )
 
-st.markdown(
-    """
-    <style>
-    /* Foundation and responsive page surface. */
-    @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap");
-    :root {
-        --tf-navy: #0b1220;
-        --tf-blue: #2563eb;
-        --tf-cyan: #22d3ee;
-        --tf-violet: #8b5cf6;
-        --tf-ink: #172033;
-        --tf-muted: #64748b;
-        --tf-surface: rgba(255, 255, 255, 0.72);
-        --tf-border: rgba(148, 163, 184, 0.25);
-        --tf-shadow: 0 18px 50px rgba(15, 23, 42, 0.1);
-    }
-    html, body, [class*="css"] {
-        font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    }
-    h1, h2, h3, h4, [data-testid="stMetricLabel"] {
-        font-family: "Space Grotesk", Inter, system-ui, sans-serif;
-    }
-    .stApp {
-        color: var(--tf-ink);
-        background:
-            radial-gradient(circle at 12% 8%, rgba(37, 99, 235, 0.09), transparent 28rem),
-            radial-gradient(circle at 92% 22%, rgba(139, 92, 246, 0.08), transparent 26rem),
-            linear-gradient(135deg, #f8fafc 0%, #eef4ff 52%, #f8fafc 100%);
-        background-size: 150% 150%;
-    }
-    .stApp::before {
-        content: "";
-        position: fixed;
-        inset: 0;
-        z-index: 0;
-        pointer-events: none;
-        opacity: 0.22;
-        background-image: radial-gradient(rgba(37, 99, 235, 0.2) 0.7px, transparent 0.7px);
-        background-size: 28px 28px;
-    }
-    .block-container {
-        position: relative;
-        z-index: 1;
-        max-width: 1440px;
-        padding-top: 2rem;
-        padding-bottom: 3.5rem;
-    }
-
-    /* Hero header with layered glow, grid texture, and intentional motion. */
-    .hero {
-        position: relative;
-        isolation: isolate;
-        overflow: hidden;
-        min-height: 170px;
-        padding: 2.25rem 2.5rem;
-        border: 1px solid rgba(147, 197, 253, 0.25);
-        border-radius: 1.35rem;
-        background:
-            linear-gradient(110deg, rgba(11, 18, 32, 0.98), rgba(23, 37, 84, 0.96) 46%, rgba(37, 99, 235, 0.94)),
-            linear-gradient(120deg, #172554, #2563eb);
-        background-size: 180% 180%;
-        box-shadow: 0 24px 60px rgba(23, 37, 84, 0.2);
-        color: white;
-        margin-bottom: 1.65rem;
-    }
-    .hero::before {
-        content: "";
-        position: absolute;
-        inset: 0;
-        z-index: -1;
-        opacity: 0.16;
-        background-image:
-            linear-gradient(rgba(255, 255, 255, 0.2) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(255, 255, 255, 0.2) 1px, transparent 1px);
-        background-size: 28px 28px;
-    }
-    .hero::after {
-        content: "";
-        position: absolute;
-        width: 240px;
-        height: 240px;
-        right: 9%;
-        top: -105px;
-        z-index: -1;
-        border-radius: 50%;
-        background: radial-gradient(circle, rgba(34, 211, 238, 0.42), transparent 68%);
-        filter: blur(8px);
-    }
-    .hero-orb {
-        position: absolute;
-        width: 120px;
-        height: 120px;
-        right: 25%;
-        bottom: -72px;
-        border-radius: 50%;
-        background: radial-gradient(circle, rgba(139, 92, 246, 0.5), transparent 68%);
-        filter: blur(10px);
-        pointer-events: none;
-    }
-    .hero-kicker {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-        margin-bottom: 0.75rem;
-        color: #a5f3fc;
-        font-size: 0.76rem;
-        font-weight: 700;
-        letter-spacing: 0.14em;
-        text-transform: uppercase;
-    }
-    .hero h1 {
-        margin: 0;
-        color: white;
-        font-size: clamp(2rem, 4vw, 3.2rem);
-        letter-spacing: -0.045em;
-        line-height: 1.05;
-    }
-    .hero p {
-        display: flex;
-        align-items: center;
-        gap: 0.55rem;
-        margin: 0.8rem 0 0;
-        color: #dbeafe;
-        font-size: 1rem;
-    }
-    .live-dot {
-        width: 0.55rem;
-        height: 0.55rem;
-        flex: 0 0 auto;
-        border-radius: 50%;
-        background: var(--tf-cyan);
-        box-shadow: 0 0 0 0 rgba(34, 211, 238, 0.65);
-    }
-
-    /* Pill tabs and stable Streamlit widget surfaces. */
-    [data-baseweb="tab-list"] {
-        gap: 0.45rem;
-        padding: 0.35rem;
-        border: 1px solid var(--tf-border);
-        border-radius: 999px;
-        background: rgba(226, 232, 240, 0.56);
-    }
-    [data-baseweb="tab"] {
-        min-height: 2.45rem;
-        border-radius: 999px;
-        color: var(--tf-muted);
-        font-weight: 600;
-        transition: color 180ms ease, background 180ms ease, transform 180ms ease;
-    }
-    [data-baseweb="tab"]:hover {
-        color: var(--tf-blue);
-        background: rgba(255, 255, 255, 0.72);
-        transform: translateY(-1px);
-    }
-    [aria-selected="true"][data-baseweb="tab"] {
-        color: white;
-        background: linear-gradient(110deg, var(--tf-blue), var(--tf-violet));
-        box-shadow: 0 5px 16px rgba(37, 99, 235, 0.22);
-    }
-    [data-baseweb="tab-highlight"] {
-        display: none;
-    }
-    [data-testid="stForm"] {
-        padding: 1.35rem;
-        border: 1px solid var(--tf-border);
-        border-radius: 1.1rem;
-        background: var(--tf-surface);
-        box-shadow: var(--tf-shadow);
-        backdrop-filter: blur(16px);
-    }
-    [data-testid="stTextInput"] input,
-    [data-testid="stTextArea"] textarea,
-    [data-testid="stFileUploaderDropzone"] {
-        border-radius: 0.75rem;
-        border-color: rgba(148, 163, 184, 0.42);
-        background: rgba(255, 255, 255, 0.7);
-        transition: border-color 180ms ease, box-shadow 180ms ease;
-    }
-    [data-testid="stTextInput"] input:focus,
-    [data-testid="stTextArea"] textarea:focus {
-        border-color: var(--tf-blue);
-        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.14);
-    }
-
-    /* Glass metric cards, result containers, and dataframes. */
-    [data-testid="stMetric"] {
-        position: relative;
-        overflow: hidden;
-        border: 1px solid var(--tf-border);
-        border-radius: 1rem;
-        padding: 1rem 1.15rem;
-        background: var(--tf-surface);
-        box-shadow: var(--tf-shadow);
-        backdrop-filter: blur(14px);
-        transition: transform 180ms ease, box-shadow 180ms ease;
-    }
-    [data-testid="stMetric"]::before {
-        content: "";
-        position: absolute;
-        inset: 0 auto 0 0;
-        width: 4px;
-        background: linear-gradient(180deg, var(--tf-cyan), var(--tf-violet));
-    }
-    [data-testid="stMetric"]:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 22px 42px rgba(37, 99, 235, 0.16);
-    }
-    [data-testid="stDataFrame"] {
-        overflow: hidden;
-        border: 1px solid var(--tf-border);
-        border-radius: 1rem;
-        background: var(--tf-surface);
-        box-shadow: var(--tf-shadow);
-        backdrop-filter: blur(12px);
-    }
-    [data-testid="stAlert"] {
-        border: 1px solid currentColor;
-        border-radius: 0.85rem;
-        box-shadow: 0 10px 28px rgba(15, 23, 42, 0.08);
-    }
-
-    /* Gradient buttons with a restrained hover shimmer. */
-    .stButton > button,
-    [data-testid="stFormSubmitButton"] button,
-    [data-testid="stDownloadButton"] button {
-        position: relative;
-        overflow: hidden;
-        border: 0;
-        border-radius: 0.75rem;
-        color: white;
-        background: linear-gradient(110deg, #2563eb, #22d3ee);
-        box-shadow: 0 8px 20px rgba(37, 99, 235, 0.22);
-        font-weight: 700;
-        transition: transform 160ms ease, box-shadow 160ms ease;
-    }
-    .stButton > button::after,
-    [data-testid="stFormSubmitButton"] button::after,
-    [data-testid="stDownloadButton"] button::after {
-        content: "";
-        position: absolute;
-        inset: 0;
-        transform: translateX(-120%);
-        background: linear-gradient(105deg, transparent 25%, rgba(255, 255, 255, 0.35), transparent 75%);
-        transition: transform 450ms ease;
-    }
-    .stButton > button:hover,
-    [data-testid="stFormSubmitButton"] button:hover,
-    [data-testid="stDownloadButton"] button:hover {
-        box-shadow: 0 12px 28px rgba(37, 99, 235, 0.35);
-        transform: translateY(-2px);
-    }
-    .stButton > button:hover::after,
-    [data-testid="stFormSubmitButton"] button:hover::after,
-    [data-testid="stDownloadButton"] button:hover::after {
-        transform: translateX(120%);
-    }
-    .stButton > button:active,
-    [data-testid="stFormSubmitButton"] button:active,
-    [data-testid="stDownloadButton"] button:active {
-        transform: scale(0.98);
-    }
-
-    /* Sidebar styling remains available for Streamlit's optional sidebar. */
-    [data-testid="stSidebar"] {
-        background: linear-gradient(165deg, #0b1220, #172554 70%, #1d4ed8);
-    }
-    [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] {
-        color: #dbeafe;
-    }
-
-    /* Motion is opt-in and uses composited transform/opacity properties. */
-    @media (prefers-reduced-motion: no-preference) {
-        .stApp { animation: tf-mesh 18s ease-in-out infinite alternate; }
-        .hero { animation: tf-gradient 12s ease-in-out infinite alternate; }
-        .hero h1, .hero p, .hero-kicker { animation: tf-rise 650ms ease-out both; }
-        .hero p { animation-delay: 90ms; }
-        .hero-orb { animation: tf-float 8s ease-in-out infinite; }
-        .live-dot { animation: tf-pulse 2s ease-out infinite; }
-        [data-testid="stForm"] { animation: tf-rise 500ms ease-out both; }
-        [data-testid="stMetric"] { animation: tf-fade 550ms ease-out both; }
-        [data-testid="stAlert"] { animation: tf-slide 420ms ease-out both; }
-    }
-    @keyframes tf-gradient {
-        0% { background-position: 0% 50%; }
-        100% { background-position: 100% 50%; }
-    }
-    @keyframes tf-mesh {
-        0% { background-position: 0% 0%; }
-        100% { background-position: 100% 100%; }
-    }
-    @keyframes tf-rise {
-        from { opacity: 0; transform: translateY(12px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-    @keyframes tf-fade {
-        from { opacity: 0; transform: translateY(6px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-    @keyframes tf-slide {
-        from { opacity: 0; transform: translateX(-12px); }
-        to { opacity: 1; transform: translateX(0); }
-    }
-    @keyframes tf-float {
-        0%, 100% { transform: translate3d(0, 0, 0); }
-        50% { transform: translate3d(-18px, -12px, 0); }
-    }
-    @keyframes tf-pulse {
-        0% { box-shadow: 0 0 0 0 rgba(34, 211, 238, 0.65); }
-        70% { box-shadow: 0 0 0 8px rgba(34, 211, 238, 0); }
-        100% { box-shadow: 0 0 0 0 rgba(34, 211, 238, 0); }
-    }
-    @media (prefers-color-scheme: dark) {
-        :root {
-            --tf-ink: #e2e8f0;
-            --tf-muted: #94a3b8;
-            --tf-surface: rgba(15, 23, 42, 0.72);
-            --tf-border: rgba(148, 163, 184, 0.2);
-            --tf-shadow: 0 18px 50px rgba(0, 0, 0, 0.24);
-        }
-        .stApp {
-            background: radial-gradient(circle at 12% 8%, rgba(37, 99, 235, 0.16), transparent 28rem),
-                linear-gradient(135deg, #070d18, #0f172a 55%, #111827);
-        }
-        [data-baseweb="tab-list"] { background: rgba(30, 41, 59, 0.72); }
-        [data-baseweb="tab"]:hover { background: rgba(51, 65, 85, 0.72); }
-        [data-testid="stTextInput"] input,
-        [data-testid="stTextArea"] textarea,
-        [data-testid="stFileUploaderDropzone"] {
-            background: rgba(15, 23, 42, 0.72);
-            color: #e2e8f0;
-        }
-    }
-    @media (max-width: 700px) {
-        .block-container { padding: 1rem 0.85rem 2.5rem; }
-        .hero { padding: 1.6rem 1.35rem; }
-        [data-baseweb="tab-list"] { overflow-x: auto; justify-content: flex-start; }
-        [data-baseweb="tab"] { white-space: nowrap; }
-    }
-    </style>
-    """,
-    unsafe_allow_html=True,
-)
-
-
-def show_api_error(response: requests.Response, action: str) -> None:
-    """Show a readable API error without hiding useful backend details."""
-    try:
-        detail = response.json().get("detail", response.text)
-    except ValueError:
-        detail = response.text
-    st.error(f"{action} failed (HTTP {response.status_code}).")
-    if detail:
-        st.caption(str(detail))
-
-
-def read_csv(uploaded_file, label: str) -> pd.DataFrame | None:
-    """Read an uploaded CSV and report user-correctable file errors."""
-    try:
-        frame = pd.read_csv(uploaded_file)
-    except (pd.errors.EmptyDataError, pd.errors.ParserError, UnicodeDecodeError) as error:
-        st.error(f"Could not read {label}. Please upload a valid UTF-8 CSV file.")
-        st.caption(str(error))
-        return None
-
-    missing_columns = {"id", "text"} - set(frame.columns)
-    if missing_columns:
-        st.error(f"{label} must contain these columns: `id` and `text`.")
-        return None
-    if frame.empty:
-        st.warning(f"{label} does not contain any tickets.")
-        return None
-    if frame[["id", "text"]].isna().any().any():
-        st.warning("Every ticket must have both an `id` and `text` value.")
-        return None
-    return frame
-
-
-st.markdown(
-    """
-    <div class="hero">
-        <span class="hero-orb" aria-hidden="true"></span>
-        <div class="hero-kicker"> TensorForge workspace</div>
-        <h1>Support routing, intelligently delivered.</h1>
-        <p><span class="live-dot" aria-hidden="true"></span>Classify customer tickets and route them to the right support team.</p>
-    </div>
-    """,
-    unsafe_allow_html=True,
-)
 
 api_base_url = os.getenv("TENSORFORGE_API_BASE_URL", "http://localhost:8000").strip().rstrip("/")
 api_key = os.getenv("TENSORFORGE_API_KEY", "")
+config = json.dumps({"apiBaseUrl": api_base_url, "apiKey": api_key}).replace("</", "<\\/")
 
-headers = {"X-API-Key": api_key, "Content-Type": "application/json"}
-
-tab_single, tab_batch, tab_async, tab_health = st.tabs(
-    [" Single ticket", " Batch predictions", " Async jobs", " Health"]
+components.html(
+    f"""
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {{
+  color-scheme: light;
+  --navy: #0b1220; --blue: #2563eb; --cyan: #22d3ee; --violet: #8b5cf6;
+  --ink: #172033; --muted: #64748b; --line: rgba(148,163,184,.28);
+  --glass: rgba(255,255,255,.78); --panel: rgba(248,250,252,.86);
+}}
+* {{ box-sizing: border-box; }}
+html, body {{ margin: 0; min-height: 100%; }}
+body {{
+  min-height: 720px; padding: 18px; overflow-x: hidden;
+  color: var(--ink); font-family: Inter, system-ui, sans-serif;
+  background: radial-gradient(circle at 8% 5%, #dbeafe 0, transparent 34%),
+    radial-gradient(circle at 94% 20%, #ede9fe 0, transparent 30%),
+    linear-gradient(135deg, #f8fafc, #eef4ff 55%, #f8fafc);
+}}
+button, input, textarea {{ font: inherit; }}
+button {{ cursor: pointer; }}
+.outer-window {{
+  max-width: 1380px; min-height: 680px; margin: auto; padding: 8px;
+  border: 1px solid rgba(100,116,139,.36); border-radius: 22px;
+  background: rgba(255,255,255,.54); box-shadow: 0 30px 90px rgba(15,23,42,.18);
+  backdrop-filter: blur(20px);
+}}
+.chrome {{
+  display: flex; align-items: center; gap: 7px; height: 35px; padding: 0 10px;
+  color: var(--muted); font: 700 11px "Space Grotesk", sans-serif; letter-spacing: .12em;
+  text-transform: uppercase;
+}}
+.traffic {{ width: 10px; height: 10px; border-radius: 50%; }}
+.traffic.red {{ background: #fb7185; }} .traffic.yellow {{ background: #fbbf24; }}
+.traffic.green {{ background: #34d399; }} .chrome-title {{ margin-left: 5px; }}
+.inner-window {{
+  position: relative; min-height: 625px; padding: 76px 18px 18px;
+  border: 1px solid var(--line); border-radius: 16px; background: var(--glass);
+  box-shadow: inset 0 1px rgba(255,255,255,.9); overflow: hidden;
+}}
+.inner-window::before {{
+  content: "TENSORFORGE  /  SUPPORT WORKSPACE";
+  position: absolute; inset: 0 0 auto; height: 47px; padding: 0 16px;
+  border-bottom: 1px solid var(--line); color: var(--muted);
+  background: linear-gradient(#f8fafc, #e2e8f0); line-height: 47px;
+  font: 700 11px/47px "Space Grotesk", sans-serif; letter-spacing: .12em;
+  white-space: pre;
+}}
+.hero {{
+  position: relative; overflow: hidden; padding: 25px 30px; border-radius: 17px;
+  color: white; background: linear-gradient(110deg, #0b1220, #172554 48%, #2563eb);
+  box-shadow: 0 20px 45px rgba(23,37,84,.22);
+}}
+.hero::before {{ content: ""; position: absolute; inset: 0; opacity: .14;
+  background-image: linear-gradient(#fff 1px,transparent 1px),linear-gradient(90deg,#fff 1px,transparent 1px);
+  background-size: 27px 27px; }}
+.hero > * {{ position: relative; }}
+.kicker {{ color: #a5f3fc; font: 700 11px "Space Grotesk", sans-serif; letter-spacing: .14em; text-transform: uppercase; }}
+h1, h2, h3 {{ font-family: "Space Grotesk", sans-serif; }}
+h1 {{ margin: 8px 0 8px; font-size: clamp(27px, 4vw, 46px); letter-spacing: -.045em; }}
+.hero p {{ margin: 0; color: #dbeafe; }}
+.live {{ display: inline-block; width: 8px; height: 8px; margin-right: 8px; border-radius: 50%; background: var(--cyan); box-shadow: 0 0 0 5px rgba(34,211,238,.15); }}
+.tabs {{ display: flex; gap: 7px; margin: 18px 0 12px; padding: 6px; border: 1px solid var(--line); border-radius: 14px; background: rgba(226,232,240,.7); }}
+.tab {{ flex: 1; padding: 10px 12px; border: 0; border-radius: 10px; color: var(--muted); background: transparent; font-weight: 700; }}
+.tab:hover {{ color: var(--blue); background: white; }} .tab.active {{ color: white; background: linear-gradient(110deg,var(--blue),var(--violet)); }}
+.panel-window {{ display: none; padding: 22px; border: 1px solid var(--line); border-radius: 15px; background: var(--panel); box-shadow: 0 12px 35px rgba(15,23,42,.08); }}
+.panel-window.active {{ display: block; }}
+.panel-window.floating {{ position:absolute; width:calc(100% - 44px); z-index:10; }}
+.panel-head {{ display:flex; align-items:flex-start; justify-content:space-between; gap:16px; margin-bottom: 16px; cursor:grab; user-select:none; }}
+.panel-head:active {{ cursor:grabbing; }}
+.panel-head h2 {{ margin: 0 0 5px; font-size: 24px; }} .panel-head p {{ margin: 0; color: var(--muted); }}
+.window-actions {{ display: flex; gap: 5px; }} .window-actions button {{ width: 28px; height: 28px; padding: 0; border: 1px solid var(--line); border-radius: 8px; color: var(--muted); background: white; }}
+.window-actions button:hover {{ color: var(--blue); border-color: var(--blue); }}
+.form-card {{ padding: 17px; border: 1px solid var(--line); border-radius: 13px; background: rgba(255,255,255,.7); }}
+label {{ display:block; margin: 0 0 6px; color: var(--muted); font-size: 13px; font-weight: 700; }}
+input, textarea {{ width:100%; padding:11px 12px; border:1px solid rgba(148,163,184,.5); border-radius:9px; color:var(--ink); background:white; outline:0; }}
+input:focus, textarea:focus {{ border-color:var(--blue); box-shadow:0 0 0 3px rgba(37,99,235,.14); }}
+textarea {{ min-height: 115px; resize: vertical; }} .field {{ margin-bottom: 14px; }}
+.primary {{ position:relative; overflow:hidden; padding:11px 16px; border:0; border-radius:9px; color:white; background:linear-gradient(110deg,var(--blue),var(--cyan)); box-shadow:0 8px 18px rgba(37,99,235,.22); font-weight:700; }}
+.primary:hover {{ transform:translateY(-1px); box-shadow:0 11px 24px rgba(37,99,235,.34); }} .primary:active {{ transform:scale(.98); }}
+.secondary {{ padding:10px 14px; border:1px solid var(--line); border-radius:9px; color:var(--ink); background:white; font-weight:700; }}
+.result, .alert {{ margin-top: 15px; padding: 13px; border-radius: 10px; white-space: pre-wrap; }}
+.result {{ border:1px solid #a5f3fc; background:#ecfeff; }} .alert {{ border:1px solid #fda4af; background:#fff1f2; color:#9f1239; }}
+.metrics {{ display:grid; grid-template-columns:repeat(2,1fr); gap:12px; margin-top:15px; }}
+.metric {{ padding:15px; border-left:4px solid var(--cyan); border-radius:11px; background:white; box-shadow:0 8px 20px rgba(15,23,42,.07); }}
+.metric small {{ display:block; color:var(--muted); font-weight:700; }} .metric strong {{ display:block; margin-top:4px; font-size:19px; }}
+.drop {{ padding:24px; border:2px dashed #93c5fd; border-radius:12px; text-align:center; background:#eff6ff; }}
+.drop input {{ margin-top:10px; border:0; background:transparent; }} .muted {{ color:var(--muted); font-size:13px; }}
+pre {{ overflow:auto; margin:0; padding:13px; border-radius:9px; color:#dbeafe; background:#0f172a; font-size:12px; }}
+.minimized .panel-body {{ display:none; }} .minimized {{ min-height:0; }}
+@media (max-width: 700px) {{
+  body {{ padding: 7px; }} .outer-window {{ min-height: 100vh; }} .inner-window {{ padding: 68px 9px 9px; }}
+  .hero {{ padding: 22px 18px; }} .tabs {{ overflow:auto; }} .tab {{ min-width:130px; }}
+  .panel-window {{ padding:15px; }} .metrics {{ grid-template-columns:1fr; }}
+}}
+@media (prefers-reduced-motion: no-preference) {{
+  .hero {{ animation: gradient 12s ease-in-out infinite alternate; }}
+  .panel-window.active {{ animation: rise .35s ease-out both; }}
+  @keyframes gradient {{ from {{ background-position:0 50%; }} to {{ background-position:100% 50%; }} }}
+  @keyframes rise {{ from {{ opacity:0; transform:translateY(7px); }} to {{ opacity:1; transform:none; }} }}
+}}
+</style>
+</head>
+<body>
+<main class="outer-window">
+  <div class="chrome"><span class="traffic red"></span><span class="traffic yellow"></span><span class="traffic green"></span><span class="chrome-title">TensorForge command center</span></div>
+  <section class="inner-window">
+    <header class="hero"><div class="kicker"> TensorForge workspace</div><h1>Support routing, intelligently delivered.</h1><p><span class="live"></span>Classify customer tickets and route them to the right support team.</p></header>
+    <nav class="tabs" aria-label="Workflows">
+      <button class="tab active" data-panel="single">Single ticket</button><button class="tab" data-panel="batch">Batch predictions</button><button class="tab" data-panel="async">Async jobs</button><button class="tab" data-panel="health">Health</button>
+    </nav>
+    <section id="single" class="panel-window active">
+      <div class="panel-head"><div><h2>Classify a single ticket</h2><p>Get an immediate category and routing team.</p></div><div class="window-actions"><button title="Minimize">−</button></div></div>
+      <div class="panel-body form-card"><div class="field"><label for="ticket-id">Ticket ID</label><input id="ticket-id" value="TICK-1001"></div><div class="field"><label for="ticket-text">Ticket description</label><textarea id="ticket-text">I was charged twice for my subscription payment on checkout.</textarea></div><button class="primary" id="classify">Classify ticket</button><div id="single-result"></div></div>
+    </section>
+    <section id="batch" class="panel-window">
+      <div class="panel-head"><div><h2>Process a batch of tickets</h2><p>Upload a CSV with <b>id</b> and <b>text</b> columns. Up to 100 tickets.</p></div><div class="window-actions"><button title="Minimize">−</button></div></div>
+      <div class="panel-body form-card"><div class="drop"><b>Choose a CSV file</b><div class="muted">Example: id,text</div><input id="sync-csv" type="file" accept=".csv"></div><div id="batch-preview"></div><button class="primary" id="run-batch" disabled>Run batch prediction</button><div id="batch-result"></div></div>
+    </section>
+    <section id="async" class="panel-window">
+      <div class="panel-head"><div><h2>Run a large dataset in the background</h2><p>Submit large datasets as background jobs.</p></div><div class="window-actions"><button title="Minimize">−</button></div></div>
+      <div class="panel-body form-card"><div class="drop"><b>Choose an evaluation CSV</b><div class="muted">Required columns: id,text</div><input id="async-csv" type="file" accept=".csv"></div><div id="async-preview"></div><button class="primary" id="submit-async" disabled>Submit async job</button><div id="async-result"></div><hr><h3>Check an existing job</h3><div class="field"><label for="job-id">Job ID</label><input id="job-id" placeholder="Paste a job ID here"></div><button class="secondary" id="check-job">Check job status</button><div id="job-result"></div></div>
+    </section>
+    <section id="health" class="panel-window">
+      <div class="panel-head"><div><h2>Backend health</h2><p>Check whether the TensorForge API is reachable.</p></div><div class="window-actions"><button title="Minimize">−</button></div></div>
+      <div class="panel-body form-card"><button class="primary" id="check-health">Check connection</button><div id="health-result"></div></div>
+    </section>
+  </section>
+</main>
+<script>
+const config = __CONFIG__;
+const api = config.apiBaseUrl;
+const authHeaders = {{"X-API-Key": config.apiKey, "Content-Type": "application/json"}};
+const $ = (id) => document.getElementById(id);
+const escapeHtml = (value) => String(value).replace(/[&<>"']/g, (char) => ({{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}}[char]));
+function show(target, text, kind="result") {{ $(target).innerHTML = `<div class="${{kind}}">${{escapeHtml(text)}}</div>`; }}
+function showJson(target, value) {{ $(target).innerHTML = `<div class="result"><pre>${{escapeHtml(JSON.stringify(value, null, 2))}}</pre></div>`; }}
+async function request(path, options={{}}) {{
+  const response = await fetch(api + path, options);
+  let data; try {{ data = await response.json(); }} catch {{ data = await response.text(); }}
+  if (!response.ok) throw new Error(`${{options.action || "Request"}} failed (HTTP ${{response.status}}). ${{data?.detail || data || ""}}`);
+  return data;
+}}
+function parseCsv(text) {{
+  const rows = []; let row = [], cell = "", quoted = false;
+  for (let i=0; i<text.length; i++) {{ const c=text[i], next=text[i+1];
+    if (c === '"' && quoted && next === '"') {{ cell += '"'; i++; }}
+    else if (c === '"') quoted = !quoted;
+    else if (c === "," && !quoted) {{ row.push(cell); cell=""; }}
+    else if ((c === "\\n" || c === "\\r") && !quoted) {{ if (c === "\\r" && next === "\\n") i++; row.push(cell); if (row.some(v=>v.trim())) rows.push(row); row=[]; cell=""; }}
+    else cell += c;
+  }} if (cell || row.length) {{ row.push(cell); rows.push(row); }}
+  if (!rows.length) throw new Error("The CSV does not contain any tickets.");
+  const headers = rows.shift().map(v=>v.trim()); const id = headers.indexOf("id"), textCol = headers.indexOf("text");
+  if (id < 0 || textCol < 0) throw new Error("The CSV must contain these columns: id and text.");
+  const tickets = rows.map(r=>({{id:(r[id]||"").trim(), text:(r[textCol]||"").trim()}}));
+  if (!tickets.length || tickets.some(t=>!t.id || !t.text)) throw new Error("Every ticket must have both an id and text value.");
+  return tickets;
+}}
+function bindFile(input, preview, button) {{ $(input).addEventListener("change", async (event) => {{ const file=event.target.files[0]; if (!file) return; try {{ const tickets=parseCsv(await file.text()); event.target.dataset.tickets=JSON.stringify(tickets); $(preview).innerHTML=`<div class="result">${{tickets.length.toLocaleString()}} ticket(s) ready.</div>`; $(button).disabled=false; }} catch(error) {{ $(preview).innerHTML=`<div class="alert">${{escapeHtml(error.message)}}</div>`; $(button).disabled=true; }} }}); }}
+bindFile("sync-csv", "batch-preview", "run-batch"); bindFile("async-csv", "async-preview", "submit-async");
+$("classify").onclick = async () => {{ const id=$("ticket-id").value.trim(), text=$("ticket-text").value.trim(); if(!id) return show("single-result","Please enter a ticket ID.","alert"); if(!text) return show("single-result","Please enter a ticket description.","alert"); try {{ const data=await request("/predict",{{method:"POST",headers:authHeaders,body:JSON.stringify({{id,text}}),action:"Ticket classification"}}); $("single-result").innerHTML=`<div class="result">Ticket classified successfully.</div><div class="metrics"><div class="metric"><small>Predicted category</small><strong>${{escapeHtml(data.category || "N/A")}}</strong></div><div class="metric"><small>Routed team</small><strong>${{escapeHtml(data.team || "N/A")}}</strong></div></div>`; }} catch(error) {{ show("single-result",error.message,"alert"); }} }};
+$("run-batch").onclick = async () => {{ try {{ const tickets=JSON.parse($("sync-csv").dataset.tickets); const data=await request("/predict/batch",{{method:"POST",headers:authHeaders,body:JSON.stringify({{tickets}}),action:"Batch prediction"}}); showJson("batch-result",data); }} catch(error) {{ show("batch-result",error.message,"alert"); }} }};
+$("submit-async").onclick = async () => {{ try {{ const tickets=JSON.parse($("async-csv").dataset.tickets); const data=await request("/batch/jobs",{{method:"POST",headers:authHeaders,body:JSON.stringify({{tickets}}),action:"Async job submission"}}); showJson("async-result",data); }} catch(error) {{ show("async-result",error.message,"alert"); }} }};
+$("check-job").onclick = async () => {{ const id=$("job-id").value.trim(); if(!id) return show("job-result","Please enter a job ID.","alert"); try {{ showJson("job-result",await request("/batch/jobs/"+encodeURIComponent(id),{{headers:authHeaders,action:"Job status request"}})); }} catch(error) {{ show("job-result",error.message,"alert"); }} }};
+$("check-health").onclick = async () => {{ try {{ showJson("health-result",await request("/health",{{action:"Health check"}})); }} catch(error) {{ show("health-result",error.message,"alert"); }} }};
+document.querySelectorAll(".tab").forEach(tab => tab.onclick = () => {{ document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active")); document.querySelectorAll(".panel-window").forEach(p=>p.classList.remove("active")); tab.classList.add("active"); $(tab.dataset.panel).classList.add("active"); }});
+document.querySelectorAll(".window-actions button").forEach(button => button.onclick = () => button.closest(".panel-window").classList.toggle("minimized"));
+document.querySelectorAll(".panel-window").forEach(panel => {{
+  const handle = panel.querySelector(".panel-head");
+  handle.addEventListener("pointerdown", (event) => {{
+    if (event.target.closest("button")) return;
+    const workspace = panel.closest(".inner-window");
+    const workspaceBox = workspace.getBoundingClientRect();
+    const panelBox = panel.getBoundingClientRect();
+    const offsetX = event.clientX - panelBox.left;
+    const offsetY = event.clientY - panelBox.top;
+    panel.classList.add("floating");
+    panel.style.left = `${{Math.max(10, panelBox.left - workspaceBox.left)}}px`;
+    panel.style.top = `${{Math.max(58, panelBox.top - workspaceBox.top)}}px`;
+    panel.setPointerCapture(event.pointerId);
+    const move = (moveEvent) => {{
+      const nextLeft = moveEvent.clientX - workspaceBox.left - offsetX;
+      const nextTop = moveEvent.clientY - workspaceBox.top - offsetY;
+      const maxLeft = workspace.clientWidth - panel.offsetWidth - 10;
+      const maxTop = workspace.clientHeight - panel.offsetHeight - 10;
+      panel.style.left = `${{Math.min(Math.max(10, nextLeft), Math.max(10, maxLeft))}}px`;
+      panel.style.top = `${{Math.min(Math.max(58, nextTop), Math.max(58, maxTop))}}px`;
+    }};
+    const stop = () => {{
+      panel.releasePointerCapture(event.pointerId);
+      panel.removeEventListener("pointermove", move);
+      panel.removeEventListener("pointerup", stop);
+      panel.removeEventListener("pointercancel", stop);
+    }};
+    panel.addEventListener("pointermove", move);
+    panel.addEventListener("pointerup", stop);
+    panel.addEventListener("pointercancel", stop);
+  }});
+}});
+</script>
+</body>
+</html>
+""".replace("__CONFIG__", config),
+    height=760,
+    scrolling=False,
 )
-
-with tab_single:
-    st.subheader("Classify a single ticket")
-    st.write("Get an immediate category and routing team for one customer request.")
-
-    with st.form("single_ticket_form"):
-        ticket_id = st.text_input("Ticket ID", value="TICK-1001")
-        ticket_text = st.text_area(
-            "Ticket description",
-            value="I was charged twice for my subscription payment on checkout.",
-            height=130,
-            placeholder="Describe the customer's issue...",
-        )
-        classify_ticket = st.form_submit_button("Classify ticket", type="primary")
-
-    if classify_ticket:
-        if not ticket_id.strip():
-            st.warning("Please enter a ticket ID.")
-        elif not ticket_text.strip():
-            st.warning("Please enter a ticket description.")
-        else:
-            with st.spinner("Classifying ticket..."):
-                try:
-                    response = requests.post(
-                        f"{api_base_url}/predict",
-                        headers=headers,
-                        json={"id": ticket_id.strip(), "text": ticket_text.strip()},
-                        timeout=10,
-                    )
-                except requests.RequestException as error:
-                    st.error("Could not connect to the backend.")
-                    st.caption(str(error))
-                else:
-                    if response.ok:
-                        data = response.json()
-                        st.success("Ticket classified successfully.")
-                        result_col1, result_col2 = st.columns(2)
-                        result_col1.metric("Predicted category", data.get("category", "N/A"))
-                        result_col2.metric("Routed team", data.get("team", "N/A"))
-                        with st.expander("View full response"):
-                            st.json(data)
-                    else:
-                        show_api_error(response, "Ticket classification")
-
-with tab_batch:
-    st.subheader("Process a batch of tickets")
-    st.write("Upload a CSV with `id` and `text` columns. Synchronous batches support up to 100 tickets.")
-    uploaded_file = st.file_uploader(
-        "Choose a CSV file",
-        type=["csv"],
-        key="sync_csv",
-        help="Example: id,text",
-    )
-
-    if uploaded_file is not None:
-        df_input = read_csv(uploaded_file, "The CSV")
-        if df_input is not None:
-            st.caption(f"{len(df_input):,} ticket(s) ready")
-            st.dataframe(df_input.head(10), use_container_width=True, hide_index=True)
-            if len(df_input) > 100:
-                st.warning("This file has more than 100 tickets. Use Async jobs for larger datasets.")
-            elif st.button("Run batch prediction", type="primary"):
-                with st.spinner(f"Processing {len(df_input):,} ticket(s)..."):
-                    try:
-                        response = requests.post(
-                            f"{api_base_url}/predict/batch",
-                            headers=headers,
-                            json={"tickets": df_input.to_dict(orient="records")},
-                            timeout=30,
-                        )
-                    except requests.RequestException as error:
-                        st.error("Could not connect to the backend.")
-                        st.caption(str(error))
-                    else:
-                        if response.ok:
-                            results = response.json().get("predictions", [])
-                            results_df = pd.DataFrame(results)
-                            st.success(f"Processed {len(results):,} ticket(s) successfully.")
-                            st.dataframe(results_df, use_container_width=True, hide_index=True)
-                            st.download_button(
-                                "Download predictions as CSV",
-                                results_df.to_csv(index=False).encode("utf-8"),
-                                "tensorforge-predictions.csv",
-                                "text/csv",
-                            )
-                        else:
-                            show_api_error(response, "Batch prediction")
-
-with tab_async:
-    st.subheader("Run a large dataset in the background")
-    st.write("Use an async job when your dataset is too large for synchronous processing.")
-    job_file = st.file_uploader("Choose an evaluation CSV", type=["csv"], key="async_csv")
-
-    if job_file is not None:
-        df_job = read_csv(job_file, "The evaluation CSV")
-        if df_job is not None:
-            st.info(f"{len(df_job):,} ticket(s) loaded and ready to submit.")
-            if st.button("Submit async job", type="primary"):
-                with st.spinner("Submitting job..."):
-                    try:
-                        response = requests.post(
-                            f"{api_base_url}/batch/jobs",
-                            headers=headers,
-                            json={"tickets": df_job.to_dict(orient="records")},
-                            timeout=30,
-                        )
-                    except requests.RequestException as error:
-                        st.error("Could not connect to the backend.")
-                        st.caption(str(error))
-                    else:
-                        if response.ok:
-                            job_data = response.json()
-                            st.success(f"Job created: `{job_data.get('job_id', 'unknown')}`")
-                            st.json(job_data)
-                        else:
-                            show_api_error(response, "Async job submission")
-
-    st.divider()
-    st.subheader("Check an existing job")
-    query_job_id = st.text_input("Job ID", placeholder="Paste a job ID here")
-    if st.button("Check job status"):
-        if not query_job_id.strip():
-            st.warning("Please enter a job ID.")
-        else:
-            with st.spinner("Fetching job status..."):
-                try:
-                    response = requests.get(
-                        f"{api_base_url}/batch/jobs/{query_job_id.strip()}",
-                        headers=headers,
-                        timeout=10,
-                    )
-                except requests.RequestException as error:
-                    st.error("Could not connect to the backend.")
-                    st.caption(str(error))
-                else:
-                    if response.ok:
-                        st.json(response.json())
-                    else:
-                        show_api_error(response, "Job status request")
-
-with tab_health:
-    st.subheader("Backend health")
-    st.write("Check whether the TensorForge API is reachable and ready to accept requests.")
-    if st.button("Check connection", type="primary"):
-        with st.spinner("Checking backend..."):
-            try:
-                response = requests.get(f"{api_base_url}/health", timeout=5)
-            except requests.RequestException as error:
-                st.error("Backend is unreachable.")
-                st.caption(str(error))
-            else:
-                if response.ok:
-                    st.success("Backend is online.")
-                    with st.expander("View health response", expanded=True):
-                        st.json(response.json())
-                else:
-                    show_api_error(response, "Health check")
