@@ -5,7 +5,8 @@ from sklearn.metrics import classification_report, accuracy_score
 def prepare_text(df):
     subject = df["subject"].fillna("").astype(str)
     text = df["text"].fillna("").astype(str)
-    return subject + " " + text
+    language = df["language"].fillna("").astype(str)
+    return language + " " + subject + " " + text
 
 def evaluate():
     model = joblib.load("ml/artifacts/model.joblib")
