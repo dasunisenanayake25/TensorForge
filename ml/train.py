@@ -1,9 +1,8 @@
 import pandas as pd
 import joblib
 from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.svm import LinearSVC
+from sklearn.linear_model import LogisticRegression
 from sklearn.pipeline import FeatureUnion
-from sklearn.calibration import CalibratedClassifierCV
 from sklearn.metrics import accuracy_score
 
 def prepare_text(df):
@@ -27,25 +26,23 @@ def train_and_export():
         ("char_tfidf", TfidfVectorizer(ngram_range=(2, 5), analyzer="char", max_features=35000, sublinear_tf=True))
     ])
     
-    print("Vectorizing...")
+    print("Vectorizing multilingual data...")
     X_train_vec = vectorizer.fit_transform(X_train)
     X_val_vec = vectorizer.transform(X_val)
     
-    # 1. Base LinearSVC
-    base_model = LinearSVC(C=0.5, class_weight="balanced", random_state=42)
-    base_model.fit(X_train_vec, y_train)
+    print("Training LogisticRegression (with native predict_proba support)...")
+    # Logistic Regression natively supports predict_proba for confidence estimation
+    model = LogisticRegression(C=2.0, max_iter=1000, class_weight="balanced", random_state=42)
+    model.fit(X_train_vec, y_train)
     
-    # 2. Probability Calibration for accurate confidence values
-    calibrated_model = CalibratedClassifierCV(estimator=base_model, cv="prefit")
-    calibrated_model.fit(X_val_vec, y_val)
+    val_preds = model.predict(X_val_vec)
+    acc = accuracy_score(y_val, val_preds)
+    print(f"\nModel Validation Accuracy: {acc:.4f}")
     
-    val_preds = calibrated_model.predict(X_val_vec)
-    print(f"Calibrated Model Accuracy: {accuracy_score(y_val, val_preds):.4f}")
-    
-    # Save artifacts
-    joblib.dump(calibrated_model, "ml/artifacts/model.joblib")
+    # Export artifacts
+    joblib.dump(model, "ml/artifacts/model.joblib")
     joblib.dump(vectorizer, "ml/artifacts/vectorizer.joblib")
-    print("Successfully saved calibrated model with confidence prediction capability!")
+    print("Successfully exported model and vectorizer with confidence support!")
 
 if __name__ == "__main__":
     train_and_export()
