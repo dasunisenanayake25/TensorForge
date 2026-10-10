@@ -1,3 +1,4 @@
+# ml/train.py
 import pandas as pd
 import joblib
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -6,10 +7,11 @@ from sklearn.pipeline import FeatureUnion
 from sklearn.metrics import classification_report, accuracy_score
 
 def prepare_text(df):
+    channel = df["channel"].fillna("").astype(str)
     subject = df["subject"].fillna("").astype(str)
     text = df["text"].fillna("").astype(str)
-    language = df["language"].fillna("").astype(str)
-    return language + " " + subject + " " + text
+    # Exclude language since harness does not send it during evaluation
+    return channel + " " + subject + " " + text
 
 def train_and_export():
     train_df = pd.read_csv("ml/data/train.csv")
@@ -26,22 +28,19 @@ def train_and_export():
         ("char_tfidf", TfidfVectorizer(ngram_range=(2, 5), analyzer="char", max_features=35000, sublinear_tf=True))
     ])
     
-    print("Vectorizing multilingual data...")
+    print("Vectorizing data without language column...")
     X_train_vec = vectorizer.fit_transform(X_train)
     X_val_vec = vectorizer.transform(X_val)
     
-    print("Training LinearSVC model...")
     model = LinearSVC(C=0.5, class_weight="balanced", random_state=42)
     model.fit(X_train_vec, y_train)
     
     val_preds = model.predict(X_val_vec)
-    acc = accuracy_score(y_val, val_preds)
-    print(f"Validation Accuracy: {acc:.4f}")
-    print(classification_report(y_val, val_preds, zero_division=0))
+    print(f"Harness-Compliant Validation Accuracy: {accuracy_score(y_val, val_preds):.4f}")
     
     joblib.dump(model, "ml/artifacts/model.joblib")
     joblib.dump(vectorizer, "ml/artifacts/vectorizer.joblib")
-    print("Successfully saved optimized artifacts to ml/artifacts/")
+    print("Artifacts saved successfully.")
 
 if __name__ == "__main__":
     train_and_export()
