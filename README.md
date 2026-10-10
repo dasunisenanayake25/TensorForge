@@ -9,10 +9,10 @@ This repository contains our end-to-end solution for Phase 2 of TensorForge 2.0.
 Our solution strictly adheres to the provided OpenAPI v2.1.0 contract and the No-LLM guidelines, ensuring sub-5ms latency and maximum data privacy.
 
 ## Live Links
-* **Live Demo (Frontend):** [Insert Streamlit Link Here]
-* **API Base URL (Backend):** [Insert Render Link Here]
-* **Video Walkthrough:** [Insert YouTube Link Here]
-* **Project Report:** [Insert Report PDF Link Here]
+* **Live Demo (Frontend):** https://tensorforge-cylix.streamlit.app/
+* **API Base URL (Backend):** https://tensorforge.onrender.com
+* **Video Walkthrough:** https://youtu.be/ZnnX2X3s3gY
+* **Project Report:** https://drive.google.com/drive/folders/1eU2OLgumOeNAUpZfmchYq8h0DJRrWfL1?usp=sharing
 
 ## Technology Stack
 * **Backend:** FastAPI, Python 3.11, Pydantic, Uvicorn
