@@ -6,7 +6,13 @@ from app.routers import health, predict, jobs
 from app.config import UnauthorizedException
 
 app = FastAPI(title="TensorForge 2.0 API")
-
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Frontend එකට ඕනෑම තැනක ඉඳන් API එකට කතා කරන්න අවසර දෙනවා
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 # Custom Error Handlers to match OpenAPI ErrorResponse Schema
 
 @app.exception_handler(UnauthorizedException)
