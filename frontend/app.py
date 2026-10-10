@@ -50,7 +50,7 @@ st.markdown(
 
 
 api_base_url = os.getenv("TENSORFORGE_API_BASE_URL", "http://localhost:8000").strip().rstrip("/")
-api_key = os.getenv("TENSORFORGE_API_KEY", "")
+api_key = os.getenv("TENSORFORGE_API_KEY", "tf2_0b0b7dc05ae49ce296bbd0d1fb596980a2b7dba11e4d6e80")
 config = json.dumps({"apiBaseUrl": api_base_url, "apiKey": api_key}).replace("</", "<\\/")
 
 components.html(
@@ -222,13 +222,13 @@ function parseCsv(text) {{
   if (!rows.length) throw new Error("The CSV does not contain any tickets.");
   const headers = rows.shift().map(v=>v.trim()); const id = headers.indexOf("id"), textCol = headers.indexOf("text");
   if (id < 0 || textCol < 0) throw new Error("The CSV must contain these columns: id and text.");
-  const tickets = rows.map(r=>({{id:(r[id]||"").trim(), text:(r[textCol]||"").trim()}}));
-  if (!tickets.length || tickets.some(t=>!t.id || !t.text)) throw new Error("Every ticket must have both an id and text value.");
+  const tickets = rows.map(r=>({{ticket_id:(r[id]||"").trim(), channel:"email",text:(r[textCol]||"").trim()}}));
+  if (!tickets.length || tickets.some(t=>!t.ticket_id || !t.text)) throw new Error("Every ticket must have both a ticket ID and text value.");
   return tickets;
 }}
 function bindFile(input, preview, button) {{ $(input).addEventListener("change", async (event) => {{ const file=event.target.files[0]; if (!file) return; try {{ const tickets=parseCsv(await file.text()); event.target.dataset.tickets=JSON.stringify(tickets); $(preview).innerHTML=`<div class="result">${{tickets.length.toLocaleString()}} ticket(s) ready.</div>`; $(button).disabled=false; }} catch(error) {{ $(preview).innerHTML=`<div class="alert">${{escapeHtml(error.message)}}</div>`; $(button).disabled=true; }} }}); }}
 bindFile("sync-csv", "batch-preview", "run-batch"); bindFile("async-csv", "async-preview", "submit-async");
-$("classify").onclick = async () => {{ const id=$("ticket-id").value.trim(), text=$("ticket-text").value.trim(); if(!id) return show("single-result","Please enter a ticket ID.","alert"); if(!text) return show("single-result","Please enter a ticket description.","alert"); try {{ const data=await request("/predict",{{method:"POST",headers:authHeaders,body:JSON.stringify({{id,text}}),action:"Ticket classification"}}); $("single-result").innerHTML=`<div class="result">Ticket classified successfully.</div><div class="metrics"><div class="metric"><small>Predicted category</small><strong>${{escapeHtml(data.category || "N/A")}}</strong></div><div class="metric"><small>Routed team</small><strong>${{escapeHtml(data.team || "N/A")}}</strong></div></div>`; }} catch(error) {{ show("single-result",error.message,"alert"); }} }};
+$("classify").onclick = async () => {{ const id=$("ticket-id").value.trim(), text=$("ticket-text").value.trim(); if(!id) return show("single-result","Please enter a ticket ID.","alert"); if(!text) return show("single-result","Please enter a ticket description.","alert"); try {{ const data=await request("/predict",{{method:"POST",headers:authHeaders,body:JSON.stringify({{ticket_id: id, channel: "chat", text: text}}),action:"Ticket classification"}}); $("single-result").innerHTML=`<div class="result">Ticket classified successfully.</div><div class="metrics"><div class="metric"><small>Predicted category</small><strong>${{escapeHtml(data.category || "N/A")}}</strong></div><div class="metric"><small>Routed team</small><strong>${{escapeHtml(data.team || "N/A")}}</strong></div></div>`; }} catch(error) {{ show("single-result",error.message,"alert"); }} }};
 $("run-batch").onclick = async () => {{ try {{ const tickets=JSON.parse($("sync-csv").dataset.tickets); const data=await request("/predict/batch",{{method:"POST",headers:authHeaders,body:JSON.stringify({{tickets}}),action:"Batch prediction"}}); showJson("batch-result",data); }} catch(error) {{ show("batch-result",error.message,"alert"); }} }};
 $("submit-async").onclick = async () => {{ try {{ const tickets=JSON.parse($("async-csv").dataset.tickets); const data=await request("/batch/jobs",{{method:"POST",headers:authHeaders,body:JSON.stringify({{tickets}}),action:"Async job submission"}}); showJson("async-result",data); }} catch(error) {{ show("async-result",error.message,"alert"); }} }};
 $("check-job").onclick = async () => {{ const id=$("job-id").value.trim(); if(!id) return show("job-result","Please enter a job ID.","alert"); try {{ showJson("job-result",await request("/batch/jobs/"+encodeURIComponent(id),{{headers:authHeaders,action:"Job status request"}})); }} catch(error) {{ show("job-result",error.message,"alert"); }} }};
