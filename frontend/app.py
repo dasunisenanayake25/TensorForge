@@ -12,6 +12,42 @@ st.set_page_config(
     initial_sidebar_state="collapsed",
 )
 
+st.markdown(
+    """
+    <style>
+        html, body, [data-testid="stAppViewContainer"], .stApp {
+            width: 100% !important;
+            max-width: 100% !important;
+            min-height: 100vh !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            background: transparent !important;
+        }
+        header[data-testid="stHeader"],
+        div[data-testid="stToolbar"],
+        div[data-testid="stStatusWidget"],
+        section[data-testid="stSidebar"],
+        div[data-testid="stDecoration"],
+        footer {
+            display: none !important;
+        }
+        .block-container {
+            padding-top: 0 !important;
+            padding-left: 0 !important;
+            padding-right: 0 !important;
+            margin: 0 !important;
+            max-width: 100% !important;
+        }
+        main.main {
+            min-height: 100vh !important;
+            padding: 0 !important;
+            background: transparent !important;
+        }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
 
 api_base_url = os.getenv("TENSORFORGE_API_BASE_URL", "http://localhost:8000").strip().rstrip("/")
 api_key = os.getenv("TENSORFORGE_API_KEY", "")
@@ -30,25 +66,25 @@ components.html(
 <style>
 :root {{
   color-scheme: light;
-  --navy: #0b1220; --blue: #2563eb; --cyan: #22d3ee; --violet: #8b5cf6;
-  --ink: #172033; --muted: #64748b; --line: rgba(148,163,184,.28);
-  --glass: rgba(255,255,255,.78); --panel: rgba(248,250,252,.86);
+  --navy: #153642; --blue: #496f73; --cyan: #d8a62a; --violet: #8fae9b;
+  --ink: #17313a; --muted: #687b79; --line: rgba(95,125,119,.26);
+  --glass: rgba(247,250,239,.88); --panel: rgba(255,253,244,.95);
 }}
 * {{ box-sizing: border-box; }}
-html, body {{ margin: 0; min-height: 100%; }}
+html, body {{ width: 100%; margin: 0; min-height: 100%; }}
 body {{
-  min-height: 720px; padding: 18px; overflow-x: hidden;
+  min-height: 100vh; padding: 18px; overflow-x: hidden; overflow-y: auto;
   color: var(--ink); font-family: Inter, system-ui, sans-serif;
-  background: radial-gradient(circle at 8% 5%, #dbeafe 0, transparent 34%),
-    radial-gradient(circle at 94% 20%, #ede9fe 0, transparent 30%),
-    linear-gradient(135deg, #f8fafc, #eef4ff 55%, #f8fafc);
+  background: radial-gradient(circle at 9% 8%, #d6eee5 0, transparent 30%),
+    radial-gradient(circle at 88% 18%, #f6df9c 0, transparent 27%),
+    linear-gradient(135deg, #edf7f0, #f7f4df 52%, #e7f0e8);
 }}
 button, input, textarea {{ font: inherit; }}
 button {{ cursor: pointer; }}
 .outer-window {{
-  max-width: 1380px; min-height: 680px; margin: auto; padding: 8px;
+  width: 100%; max-width: 1380px; min-height: 680px; margin: auto; padding: 8px;
   border: 1px solid rgba(100,116,139,.36); border-radius: 22px;
-  background: rgba(255,255,255,.54); box-shadow: 0 30px 90px rgba(15,23,42,.18);
+  background: rgba(238,247,239,.9); box-shadow: 0 30px 90px rgba(55,78,70,.2);
   backdrop-filter: blur(20px);
 }}
 .chrome {{
@@ -57,65 +93,72 @@ button {{ cursor: pointer; }}
   text-transform: uppercase;
 }}
 .traffic {{ width: 10px; height: 10px; border-radius: 50%; }}
-.traffic.red {{ background: #fb7185; }} .traffic.yellow {{ background: #fbbf24; }}
-.traffic.green {{ background: #34d399; }} .chrome-title {{ margin-left: 5px; }}
+.traffic.red {{ background: #d8a62a; }} .traffic.yellow {{ background: #efc65b; }}
+.traffic.green {{ background: #79a98f; }} .chrome-title {{ margin-left: 5px; }}
 .inner-window {{
   position: relative; min-height: 625px; padding: 76px 18px 18px;
   border: 1px solid var(--line); border-radius: 16px; background: var(--glass);
-  box-shadow: inset 0 1px rgba(255,255,255,.9); overflow: hidden;
+  box-shadow: inset 0 1px rgba(255,255,255,.08); overflow: hidden;
 }}
 .inner-window::before {{
   content: "TENSORFORGE  /  SUPPORT WORKSPACE";
   position: absolute; inset: 0 0 auto; height: 47px; padding: 0 16px;
   border-bottom: 1px solid var(--line); color: var(--muted);
-  background: linear-gradient(#f8fafc, #e2e8f0); line-height: 47px;
+  background: linear-gradient(#f5f8ed, #dcebe1); line-height: 47px;
   font: 700 11px/47px "Space Grotesk", sans-serif; letter-spacing: .12em;
   white-space: pre;
 }}
 .hero {{
   position: relative; overflow: hidden; padding: 25px 30px; border-radius: 17px;
-  color: white; background: linear-gradient(110deg, #0b1220, #172554 48%, #2563eb);
-  box-shadow: 0 20px 45px rgba(23,37,84,.22);
+  color: white;
+  background:
+    linear-gradient(105deg, rgba(39,91,99,.92) 0%, rgba(94,119,91,.66) 52%, rgba(214,166,42,.32) 100%),
+    url("https://images.unsplash.com/photo-1552674605-db6ffd4facb5?auto=format&fit=crop&w=1400&q=82") center 34% / cover no-repeat;
+  box-shadow: 0 20px 45px rgba(55,78,70,.22);
 }}
 .hero::before {{ content: ""; position: absolute; inset: 0; opacity: .14;
   background-image: linear-gradient(#fff 1px,transparent 1px),linear-gradient(90deg,#fff 1px,transparent 1px);
   background-size: 27px 27px; }}
+.hero::after {{
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(90deg, rgba(15,23,42,.18), transparent 52%, rgba(33,27,45,.12));
+}}
 .hero > * {{ position: relative; }}
-.kicker {{ color: #a5f3fc; font: 700 11px "Space Grotesk", sans-serif; letter-spacing: .14em; text-transform: uppercase; }}
+.kicker {{ color: #f6df9c; font: 700 11px "Space Grotesk", sans-serif; letter-spacing: .14em; text-transform: uppercase; }}
 h1, h2, h3 {{ font-family: "Space Grotesk", sans-serif; }}
 h1 {{ margin: 8px 0 8px; font-size: clamp(27px, 4vw, 46px); letter-spacing: -.045em; }}
-.hero p {{ margin: 0; color: #dbeafe; }}
-.live {{ display: inline-block; width: 8px; height: 8px; margin-right: 8px; border-radius: 50%; background: var(--cyan); box-shadow: 0 0 0 5px rgba(34,211,238,.15); }}
-.tabs {{ display: flex; gap: 7px; margin: 18px 0 12px; padding: 6px; border: 1px solid var(--line); border-radius: 14px; background: rgba(226,232,240,.7); }}
+.hero p {{ margin: 0; color: #eef6e8; }}
+.live {{ display: inline-block; width: 8px; height: 8px; margin-right: 8px; border-radius: 50%; background: #f0c653; box-shadow: 0 0 0 5px rgba(216,166,42,.2); }}
+.tabs {{ display: flex; gap: 7px; margin: 18px 0 12px; padding: 6px; border: 1px solid var(--line); border-radius: 14px; background: rgba(215,232,222,.82); }}
 .tab {{ flex: 1; padding: 10px 12px; border: 0; border-radius: 10px; color: var(--muted); background: transparent; font-weight: 700; }}
-.tab:hover {{ color: var(--blue); background: white; }} .tab.active {{ color: white; background: linear-gradient(110deg,var(--blue),var(--violet)); }}
-.panel-window {{ display: none; padding: 22px; border: 1px solid var(--line); border-radius: 15px; background: var(--panel); box-shadow: 0 12px 35px rgba(15,23,42,.08); }}
+.tab:hover {{ color: #17313a; background: #fffdf4; }} .tab.active {{ color: #fffdf4; background: linear-gradient(110deg,#496f73,#315760); }}
+.panel-window {{ display: none; padding: 22px; border: 1px solid var(--line); border-radius: 15px; background: var(--panel); box-shadow: 0 12px 35px rgba(55,78,70,.1); }}
 .panel-window.active {{ display: block; }}
 .panel-window.floating {{ position:absolute; width:calc(100% - 44px); z-index:10; }}
 .panel-head {{ display:flex; align-items:flex-start; justify-content:space-between; gap:16px; margin-bottom: 16px; cursor:grab; user-select:none; }}
 .panel-head:active {{ cursor:grabbing; }}
 .panel-head h2 {{ margin: 0 0 5px; font-size: 24px; }} .panel-head p {{ margin: 0; color: var(--muted); }}
 .window-actions {{ display: flex; gap: 5px; }} .window-actions button {{ width: 28px; height: 28px; padding: 0; border: 1px solid var(--line); border-radius: 8px; color: var(--muted); background: white; }}
-.window-actions button:hover {{ color: var(--blue); border-color: var(--blue); }}
-.form-card {{ padding: 17px; border: 1px solid var(--line); border-radius: 13px; background: rgba(255,255,255,.7); }}
+.window-actions button:hover {{ color: #b48212; border-color: #d8a62a; }}
+.form-card {{ padding: 17px; border: 1px solid var(--line); border-radius: 13px; background: rgba(255,253,244,.78); }}
 label {{ display:block; margin: 0 0 6px; color: var(--muted); font-size: 13px; font-weight: 700; }}
-input, textarea {{ width:100%; padding:11px 12px; border:1px solid rgba(148,163,184,.5); border-radius:9px; color:var(--ink); background:white; outline:0; }}
-input:focus, textarea:focus {{ border-color:var(--blue); box-shadow:0 0 0 3px rgba(37,99,235,.14); }}
+input, textarea {{ width:100%; padding:11px 12px; border:1px solid rgba(95,125,119,.35); border-radius:9px; color:var(--ink); background:#fffef8; outline:0; }}
+input:focus, textarea:focus {{ border-color:#496f73; box-shadow:0 0 0 3px rgba(73,111,115,.18); }}
 textarea {{ min-height: 115px; resize: vertical; }} .field {{ margin-bottom: 14px; }}
-.primary {{ position:relative; overflow:hidden; padding:11px 16px; border:0; border-radius:9px; color:white; background:linear-gradient(110deg,var(--blue),var(--cyan)); box-shadow:0 8px 18px rgba(37,99,235,.22); font-weight:700; }}
-.primary:hover {{ transform:translateY(-1px); box-shadow:0 11px 24px rgba(37,99,235,.34); }} .primary:active {{ transform:scale(.98); }}
-.secondary {{ padding:10px 14px; border:1px solid var(--line); border-radius:9px; color:var(--ink); background:white; font-weight:700; }}
+.primary {{ position:relative; overflow:hidden; padding:11px 16px; border:0; border-radius:9px; color:#fffdf4; background:linear-gradient(110deg,#496f73,#315760); box-shadow:0 8px 18px rgba(49,87,96,.26); font-weight:700; }}
+.primary:hover {{ transform:translateY(-1px); box-shadow:0 11px 24px rgba(49,87,96,.34); }} .primary:active {{ transform:scale(.98); }}
+.secondary {{ padding:10px 14px; border:1px solid var(--line); border-radius:9px; color:var(--ink); background:#e4eee3; font-weight:700; }}
 .result, .alert {{ margin-top: 15px; padding: 13px; border-radius: 10px; white-space: pre-wrap; }}
-.result {{ border:1px solid #a5f3fc; background:#ecfeff; }} .alert {{ border:1px solid #fda4af; background:#fff1f2; color:#9f1239; }}
+.result {{ border:1px solid #8fae9b; background:rgba(143,174,155,.16); }} .alert {{ border:1px solid #d8a62a; background:rgba(246,223,156,.3); color:#6f5410; }}
 .metrics {{ display:grid; grid-template-columns:repeat(2,1fr); gap:12px; margin-top:15px; }}
-.metric {{ padding:15px; border-left:4px solid var(--cyan); border-radius:11px; background:white; box-shadow:0 8px 20px rgba(15,23,42,.07); }}
+.metric {{ padding:15px; border-left:4px solid var(--cyan); border-radius:11px; background:#fffdf4; box-shadow:0 8px 20px rgba(55,78,70,.12); }}
 .metric small {{ display:block; color:var(--muted); font-weight:700; }} .metric strong {{ display:block; margin-top:4px; font-size:19px; }}
-.drop {{ padding:24px; border:2px dashed #93c5fd; border-radius:12px; text-align:center; background:#eff6ff; }}
+.drop {{ padding:24px; border:2px dashed #8fae9b; border-radius:12px; text-align:center; background:rgba(214,238,229,.5); }}
 .drop input {{ margin-top:10px; border:0; background:transparent; }} .muted {{ color:var(--muted); font-size:13px; }}
-pre {{ overflow:auto; margin:0; padding:13px; border-radius:9px; color:#dbeafe; background:#0f172a; font-size:12px; }}
+pre {{ overflow:auto; margin:0; padding:13px; border-radius:9px; color:#f7f5e9; background:#17313a; font-size:12px; }}
 .minimized .panel-body {{ display:none; }} .minimized {{ min-height:0; }}
 @media (max-width: 700px) {{
-  body {{ padding: 7px; }} .outer-window {{ min-height: 100vh; }} .inner-window {{ padding: 68px 9px 9px; }}
+  body {{ min-height: 100vh; padding: 7px; }} .outer-window {{ min-height: 100vh; }} .inner-window {{ padding: 68px 9px 9px; }}
   .hero {{ padding: 22px 18px; }} .tabs {{ overflow:auto; }} .tab {{ min-width:130px; }}
   .panel-window {{ padding:15px; }} .metrics {{ grid-template-columns:1fr; }}
 }}
@@ -228,6 +271,6 @@ document.querySelectorAll(".panel-window").forEach(panel => {{
 </body>
 </html>
 """.replace("__CONFIG__", config),
-    height=760,
-    scrolling=False,
+    height=1180,
+    scrolling=True,
 )
