@@ -1,9 +1,9 @@
 import pandas as pd
 import joblib
 from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.linear_model import LogisticRegression
+from sklearn.svm import LinearSVC
 from sklearn.pipeline import FeatureUnion
-from sklearn.metrics import accuracy_score
+from sklearn.metrics import accuracy_score, classification_report
 
 def prepare_text(df):
     channel = df["channel"].fillna("").astype(str)
@@ -26,23 +26,22 @@ def train_and_export():
         ("char_tfidf", TfidfVectorizer(ngram_range=(2, 5), analyzer="char", max_features=35000, sublinear_tf=True))
     ])
     
-    print("Vectorizing multilingual data...")
+    print("Vectorizing text features...")
     X_train_vec = vectorizer.fit_transform(X_train)
     X_val_vec = vectorizer.transform(X_val)
     
-    print("Training LogisticRegression (with native predict_proba support)...")
-    # Logistic Regression natively supports predict_proba for confidence estimation
-    model = LogisticRegression(C=2.0, max_iter=1000, class_weight="balanced", random_state=42)
+    print("Training high-performance LinearSVC...")
+    model = LinearSVC(C=0.5, class_weight="balanced", random_state=42)
     model.fit(X_train_vec, y_train)
     
     val_preds = model.predict(X_val_vec)
     acc = accuracy_score(y_val, val_preds)
-    print(f"\nModel Validation Accuracy: {acc:.4f}")
+    print(f"\nFinal Validation Accuracy: {acc:.4f}\n")
+    print(classification_report(y_val, val_preds, zero_division=0))
     
-    # Export artifacts
     joblib.dump(model, "ml/artifacts/model.joblib")
     joblib.dump(vectorizer, "ml/artifacts/vectorizer.joblib")
-    print("Successfully exported model and vectorizer with confidence support!")
+    print("Artifacts successfully saved to ml/artifacts/!")
 
 if __name__ == "__main__":
     train_and_export()
