@@ -1,3 +1,5 @@
+import os
+
 import pandas as pd
 import requests
 import streamlit as st
@@ -7,7 +9,7 @@ st.set_page_config(
     page_title="TensorForge | Support Routing",
     page_icon="",
     layout="wide",
-    initial_sidebar_state="expanded",
+    initial_sidebar_state="collapsed",
 )
 
 st.markdown(
@@ -78,24 +80,8 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-with st.sidebar:
-    st.header("Connection")
-    api_base_url = st.text_input(
-        "Backend URL",
-        value="http://localhost:8000",
-        help="The address where the TensorForge API is running.",
-    ).strip().rstrip("/")
-    api_key = st.text_input(
-        "API key",
-        value="tf2_0b0b7dc05ae49ce296bbd0d1fb596980a2b7dba11e4d6e80",
-        type="password",
-        help="Used for prediction and batch endpoints. Health checks do not need it.",
-    )
-    st.divider()
-    st.markdown("**Quick guide**")
-    st.caption("1. Check the backend connection in Health.")
-    st.caption("2. Classify one ticket or upload a CSV.")
-    st.caption("3. Download batch predictions for further analysis.")
+api_base_url = os.getenv("TENSORFORGE_API_BASE_URL", "http://localhost:8000").strip().rstrip("/")
+api_key = os.getenv("TENSORFORGE_API_KEY", "")
 
 headers = {"X-API-Key": api_key, "Content-Type": "application/json"}
 
