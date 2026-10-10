@@ -5,7 +5,7 @@ import streamlit as st
 
 st.set_page_config(
     page_title="TensorForge | Support Routing",
-    page_icon="⚡",
+    page_icon="",
     layout="wide",
     initial_sidebar_state="expanded",
 )
@@ -71,7 +71,7 @@ def read_csv(uploaded_file, label: str) -> pd.DataFrame | None:
 st.markdown(
     """
     <div class="hero">
-        <h1>⚡ TensorForge Support Routing</h1>
+        <h1> TensorForge Support Routing</h1>
         <p>Classify customer tickets and route them to the right support team.</p>
     </div>
     """,
@@ -100,7 +100,7 @@ with st.sidebar:
 headers = {"X-API-Key": api_key, "Content-Type": "application/json"}
 
 tab_single, tab_batch, tab_async, tab_health = st.tabs(
-    ["🎯 Single ticket", "📦 Batch predictions", "🔄 Async jobs", "🏥 Health"]
+    [" Single ticket", " Batch predictions", " Async jobs", " Health"]
 )
 
 with tab_single:
