@@ -393,7 +393,7 @@ st.markdown(
     """
     <div class="hero">
         <span class="hero-orb" aria-hidden="true"></span>
-        <div class="hero-kicker">⚡ TensorForge workspace</div>
+        <div class="hero-kicker"> TensorForge workspace</div>
         <h1>Support routing, intelligently delivered.</h1>
         <p><span class="live-dot" aria-hidden="true"></span>Classify customer tickets and route them to the right support team.</p>
     </div>
