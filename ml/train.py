@@ -6,11 +6,10 @@ from sklearn.pipeline import FeatureUnion
 from sklearn.metrics import classification_report, accuracy_score
 
 def prepare_text(df):
-    language = df["language"].fillna("").astype(str)
-    # Give double emphasis to subject as it contains high-intent keywords
-    subject = (df["subject"].fillna("").astype(str) + " ") * 2
+    subject = df["subject"].fillna("").astype(str)
     text = df["text"].fillna("").astype(str)
-    return language + " " + subject + text
+    language = df["language"].fillna("").astype(str)
+    return language + " " + subject + " " + text
 
 def train_and_export():
     train_df = pd.read_csv("ml/data/train.csv")
@@ -23,35 +22,26 @@ def train_and_export():
     y_val = val_df["category"]
     
     vectorizer = FeatureUnion([
-        ("word_tfidf", TfidfVectorizer(
-            ngram_range=(1, 2), 
-            max_features=25000, 
-            sublinear_tf=True
-        )),
-        ("char_tfidf", TfidfVectorizer(
-            ngram_range=(2, 5), 
-            analyzer="char", 
-            max_features=35000, 
-            sublinear_tf=True
-        ))
+        ("word_tfidf", TfidfVectorizer(ngram_range=(1, 2), max_features=25000, sublinear_tf=True)),
+        ("char_tfidf", TfidfVectorizer(ngram_range=(2, 5), analyzer="char", max_features=35000, sublinear_tf=True))
     ])
     
-    print("Vectorizing text features...")
+    print("Vectorizing multilingual data...")
     X_train_vec = vectorizer.fit_transform(X_train)
     X_val_vec = vectorizer.transform(X_val)
     
-    print("Training optimized LinearSVC...")
+    print("Training LinearSVC model...")
     model = LinearSVC(C=0.5, class_weight="balanced", random_state=42)
     model.fit(X_train_vec, y_train)
     
     val_preds = model.predict(X_val_vec)
     acc = accuracy_score(y_val, val_preds)
-    print(f"\nRestored Validation Accuracy: {acc:.4f}\n")
+    print(f"Validation Accuracy: {acc:.4f}")
     print(classification_report(y_val, val_preds, zero_division=0))
     
     joblib.dump(model, "ml/artifacts/model.joblib")
     joblib.dump(vectorizer, "ml/artifacts/vectorizer.joblib")
-    print("Artifacts saved to ml/artifacts/")
+    print("Successfully saved optimized artifacts to ml/artifacts/")
 
 if __name__ == "__main__":
     train_and_export()
