@@ -65,12 +65,12 @@ button {{ cursor: pointer; }}
   box-shadow: inset 0 1px rgba(255,255,255,.9); overflow: hidden;
 }}
 .inner-window::before {{
-  content: "●  ●  ●       TENSORFORGE  /  SUPPORT WORKSPACE";
+  content: "TENSORFORGE  /  SUPPORT WORKSPACE";
   position: absolute; inset: 0 0 auto; height: 47px; padding: 0 16px;
   border-bottom: 1px solid var(--line); color: var(--muted);
   background: linear-gradient(#f8fafc, #e2e8f0); line-height: 47px;
   font: 700 11px/47px "Space Grotesk", sans-serif; letter-spacing: .12em;
-  text-shadow: -8px 0 #fb7185, -5px 0 #fbbf24, -2px 0 #34d399; white-space: pre;
+  white-space: pre;
 }}
 .hero {{
   position: relative; overflow: hidden; padding: 25px 30px; border-radius: 17px;
@@ -131,7 +131,7 @@ pre {{ overflow:auto; margin:0; padding:13px; border-radius:9px; color:#dbeafe; 
 <main class="outer-window">
   <div class="chrome"><span class="traffic red"></span><span class="traffic yellow"></span><span class="traffic green"></span><span class="chrome-title">TensorForge command center</span></div>
   <section class="inner-window">
-    <header class="hero"><div class="kicker">⚡ TensorForge workspace</div><h1>Support routing, intelligently delivered.</h1><p><span class="live"></span>Classify customer tickets and route them to the right support team.</p></header>
+    <header class="hero"><div class="kicker"> TensorForge workspace</div><h1>Support routing, intelligently delivered.</h1><p><span class="live"></span>Classify customer tickets and route them to the right support team.</p></header>
     <nav class="tabs" aria-label="Workflows">
       <button class="tab active" data-panel="single">Single ticket</button><button class="tab" data-panel="batch">Batch predictions</button><button class="tab" data-panel="async">Async jobs</button><button class="tab" data-panel="health">Health</button>
     </nav>
