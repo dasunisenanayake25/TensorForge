@@ -1,5 +1,5 @@
-# Use official Python lightweight image
-FROM python:3.10-slim
+# Use official Python 3.11 lightweight image 
+FROM python:3.11-slim
 
 # Set the working directory inside the container
 WORKDIR /app
@@ -20,5 +20,5 @@ WORKDIR /app/backend
 # Expose the port for the API
 EXPOSE 8000
 
-# Command to run the application (No internet needed from this point onwards)
+# Command to run the application
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
