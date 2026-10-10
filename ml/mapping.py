@@ -1,20 +1,18 @@
+# ml/mapping.py - Aligned strictly with predict_response.schema.json
+
 CATEGORY_TO_TEAM = {
-    "safety_conduct": "safety_team",
-    "payment_refund": "payments_team",
-    "ride_trip_issue": "rides_support",
-    "delivery_delay": "deliveries_team",
-    "order_missing_wrong": "deliveries_team",
-    "food_quality": "deliveries_team",
-    "lost_item": "lost_and_found",
-    "account_promo": "accounts_team",
-    "app_technical": "technical_support",
-    "general_inquiry": "general_support",
-    "spam_irrelevant": "spam_desk"
+    "payment_refund": "Payments & Refunds",
+    "ride_trip_issue": "Ride Operations",
+    "lost_item": "Lost & Found",
+    "order_missing_wrong": "Food Operations",
+    "delivery_delay": "Delivery Operations",
+    "food_quality": "Restaurant Quality",
+    "account_promo": "Account Services",
+    "safety_conduct": "Trust & Safety",
+    "app_technical": "Tech Support",
+    "general_inquiry": "Front-line Support",
+    "spam_irrelevant": "Auto-close / Spam Filter"
 }
 
 def map_category_to_team(category: str) -> str:
-    """
-    Maps a predicted ticket category to its assigned operational team.
-    Defaults to 'general_support' for unrecognized categories.
-    """
-    return CATEGORY_TO_TEAM.get(category, "general_support")
+    return CATEGORY_TO_TEAM.get(category, "Front-line Support")
