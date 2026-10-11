@@ -49,7 +49,7 @@ st.markdown(
 )
 
 
-api_base_url = os.getenv("TENSORFORGE_API_BASE_URL", "http://localhost:8000").strip().rstrip("/")
+api_base_url = os.getenv("TENSORFORGE_API_BASE_URL", "https://tensorforge.onrender.com").strip().rstrip("/")
 api_key = os.getenv("TENSORFORGE_API_KEY", "tf2_0b0b7dc05ae49ce296bbd0d1fb596980a2b7dba11e4d6e80")
 config = json.dumps({"apiBaseUrl": api_base_url, "apiKey": api_key}).replace("</", "<\\/")
 
